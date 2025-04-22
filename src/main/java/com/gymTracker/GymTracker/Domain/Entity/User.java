@@ -4,6 +4,8 @@ import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,7 +23,9 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+    @CreationTimestamp
     private LocalDateTime createdAt;
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
     @Enumerated(EnumType.STRING)
     private Roles role;

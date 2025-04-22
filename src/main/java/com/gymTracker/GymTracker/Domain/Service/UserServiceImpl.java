@@ -4,6 +4,7 @@ import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
 import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
+import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.User;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -23,16 +24,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public RegistrationResponse registerUser(RegisterRequest registerRequest)
     {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            return new RegistrationResponse("01","User Already exists");
+        }
         User user = new User();
         user.setUserName(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(registerRequest.getPassword());
+        user.setFullName(registerRequest.getFullName());
+        user.setRole(Roles.USER);
         user.setDob(registerRequest.getDob());
         user.setGender(registerRequest.getGender());
 
         userRepository.save(user);
         return new RegistrationResponse("00","Registration successful");
     }
+
+
 
     @Override
     public LoginResponse loginUser(LoginRequest loginRequest) {
