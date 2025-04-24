@@ -1,36 +1,19 @@
 package com.gymTracker.GymTracker.App.Dto.Request;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class BookSessionRequest {
-    private LocalDateTime time;
-    private LocalDate date ;
+public class SessionRequest {
+    private LocalDateTime startTime;
 
-    private boolean utilize;
-
-    public LocalDateTime getTime() {
-        return time;
+    public SessionRequest(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public boolean isUtilize() {
-        return utilize;
-    }
-
-    public void setUtilize(boolean utilize) {
-        this.utilize = utilize;
-    }
-
 }

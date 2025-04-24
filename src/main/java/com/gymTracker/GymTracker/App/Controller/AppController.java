@@ -2,8 +2,10 @@ package com.gymTracker.GymTracker.App.Controller;
 
 import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
+import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
 import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
+import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
 import com.gymTracker.GymTracker.Domain.Service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,5 +37,10 @@ public class AppController {
     @PostMapping("/dummy")
     public String dummyEndPoint(){
         return "Test";
+    }
+
+    @PostMapping("/bookSession")
+    public SessionResponse bookSession(@RequestBody SessionRequest SessionRequest){
+        return userService.bookSession(SessionRequest);
     }
 }

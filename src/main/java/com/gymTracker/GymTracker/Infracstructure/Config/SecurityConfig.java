@@ -39,7 +39,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers("/api/v1/register", "/api/v1/login").permitAll()
+                authorizeRequests.requestMatchers("/api/v1/register", "/api/v1/login" , "/api/v1/bookSession").permitAll()
                         .anyRequest().authenticated());
         http.sessionManagement(
                 session ->

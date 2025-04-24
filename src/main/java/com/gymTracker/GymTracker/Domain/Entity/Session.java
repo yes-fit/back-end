@@ -1,9 +1,6 @@
 package com.gymTracker.GymTracker.Domain.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -14,13 +11,14 @@ import java.util.UUID;
 @Data
 @Entity
 @ToString
-public class BookSession {
+@Table(name = "GYM_SESSIONS")
+public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private Long userId;
-    private LocalDateTime time;
-    private LocalDate date;
+    private String userId;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private boolean active;
     private boolean utilize;
 
@@ -32,28 +30,28 @@ public class BookSession {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public LocalDateTime getTime() {
-        return time;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public boolean isActive() {
@@ -71,5 +69,4 @@ public class BookSession {
     public void setUtilize(boolean utilize) {
         this.utilize = utilize;
     }
-
 }

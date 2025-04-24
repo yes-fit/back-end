@@ -1,10 +1,16 @@
 package com.gymTracker.GymTracker.App.Dto.Response;
 
-import java.time.LocalDateTime;
-
-public class BookSessionResponse {
+public class SessionResponse {
     private String responseCode;
     private String responseMessage;
+
+
+
+    public SessionResponse(String responseCode, String responseMessage) {
+        this.responseCode = responseCode;
+        this.responseMessage = responseMessage;
+
+    }
 
     public String getResponseCode() {
         return responseCode;
@@ -22,11 +28,5 @@ public class BookSessionResponse {
         this.responseMessage = responseMessage;
     }
 
-    @Override
-    public String toString() {
-        return "BookSessionResponse{" +
-                "responseCode='" + responseCode + '\'' +
-                ", responseMessage='" + responseMessage + '\'' +
-                '}';
-    }
+
 }
