@@ -28,10 +28,14 @@ public class JwtUtils {
     public JwtUtils() {
     }
 
+    private Key key() {
+        return Keys.hmacShaKeyFor((byte[])Decoders.BASE64.decode(this.jwtSecret));
+    }
+
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         logger.debug("Authorization Header: {}", bearerToken);
-        return bearerToken != null && bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : null;
+        return bearerToken != null && bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : bearerToken;
     }
 
     public String generateTokenFromUsername(UserDetails userDetails) {
@@ -39,13 +43,17 @@ public class JwtUtils {
         return Jwts.builder().subject(username).issuedAt(new Date()).expiration(new Date((new Date()).getTime() + (long)this.jwtExpirationMs)).signWith(this.key()).compact();
     }
 
+//    public String generateTokenFromUserName(String userName) {
+//        return Jwts.builder().subject(userName).issuedAt(new Date()).expiration(new Date((new Date()).getTime() + (long)this.jwtExpirationMs)).signWith(this.key()).compact();
+//    }
+
+    public String generateTokenFromEmail(String email) {
+        return Jwts.builder().subject(email).issuedAt(new Date()).expiration(new Date((new Date()).getTime() + (long)this.jwtExpirationMs)).signWith(this.key()).compact();
+    }
     public String getUserNameFromJwtToken(String token) {
         return ((Claims)Jwts.parser().verifyWith((SecretKey)this.key()).build().parseSignedClaims(token).getPayload()).getSubject();
     }
 
-    private Key key() {
-        return Keys.hmacShaKeyFor((byte[])Decoders.BASE64.decode(this.jwtSecret));
-    }
 
     public boolean validateJwtToken(String authToken) {
         try {

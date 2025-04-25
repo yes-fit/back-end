@@ -31,4 +31,9 @@ public class AppController {
     public LoginResponse login(@RequestBody LoginRequest loginRequest){
         return userService.loginUser(loginRequest);
     }
+
+    @PostMapping("/dummy")
+    public String dummyEndPoint(){
+        return "Test";
+    }
 }
