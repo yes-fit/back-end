@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
-
+@CrossOrigin(origins = "*")
 public class AppController {
 
     private final UserService userService;
@@ -33,9 +33,9 @@ public class AppController {
         return userService.loginUser(loginRequest);
     }
 
-    @PostMapping("/dummy")
+    @GetMapping("/dummy")
     public String dummyEndPoint(){
-        return "Test";
+        return "yay, welcome!";
     }
 
     @PostMapping("/bookSession")
