@@ -41,7 +41,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers("/api/v1/dummy", "/api/v1/register", "/api/v1/login" , "/api/v1/bookSession").permitAll()
+                authorizeRequests.requestMatchers("/api/v1/dummy", "/api/v1/register", "/api/v1/login").permitAll()
                         .anyRequest().authenticated());
         http.sessionManagement(
                 session ->
@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
                 )
         );
-        http.cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(authenticationJwtTokenFilter(),
                 UsernamePasswordAuthenticationFilter.class);

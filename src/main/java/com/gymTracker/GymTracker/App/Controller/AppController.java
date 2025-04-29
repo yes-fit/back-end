@@ -39,8 +39,8 @@ public class AppController {
     }
 
     @PostMapping("/bookSession")
-    public SessionResponse bookSession(@RequestBody SessionRequest SessionRequest){
-        return userService.bookSession(SessionRequest);
+    public SessionResponse bookSession(@RequestBody SessionRequest sessionRequest){
+        return userService.bookSession(sessionRequest);
     }
     @GetMapping("/view")
     public ViewResponse viewSession(){

@@ -11,9 +11,11 @@ C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\co
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Infracstructure\Config\Jwt\AuthTokenFilter.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Domain\Entity\ReportUsage.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Infracstructure\Config\SecurityConfig.java
+C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\App\Dto\Response\ViewResponse.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Domain\Service\UserService.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Domain\Service\UserServiceImpl.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\GymTrackerApplication.java
+C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\App\Dto\Request\ViewRequest.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\App\Dto\Request\RegisterRequest.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\Domain\Constants\Roles.java
 C:\Users\AbdulBasit\Desktop\Coding\Java Applications\GymTracker\src\main\java\com\gymTracker\GymTracker\App\Dto\Request\SessionRequest.java
