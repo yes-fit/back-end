@@ -3,14 +3,13 @@ package com.gymTracker.GymTracker.App.Controller;
 import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
+import com.gymTracker.GymTracker.App.Dto.Request.ViewRequest;
 import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
+import com.gymTracker.GymTracker.App.Dto.Response.ViewResponse;
 import com.gymTracker.GymTracker.Domain.Service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -42,5 +41,9 @@ public class AppController {
     @PostMapping("/bookSession")
     public SessionResponse bookSession(@RequestBody SessionRequest SessionRequest){
         return userService.bookSession(SessionRequest);
+    }
+    @GetMapping("/view")
+    public ViewResponse viewSession(){
+        return userService.viewSession();
     }
 }

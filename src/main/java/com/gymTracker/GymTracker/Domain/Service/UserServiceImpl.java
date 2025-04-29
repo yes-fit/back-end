@@ -3,9 +3,11 @@ package com.gymTracker.GymTracker.Domain.Service;
 import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
+import com.gymTracker.GymTracker.App.Dto.Request.ViewRequest;
 import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
+import com.gymTracker.GymTracker.App.Dto.Response.ViewResponse;
 import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -88,5 +91,14 @@ public class UserServiceImpl implements UserService {
         session.setEndTime(endTime);
         sessionRepository.save(session);
         return new SessionResponse("00" , "Booking Successful");
+    }
+
+    @Override
+    public ViewResponse viewSession() {
+        List<Session> sessionList = sessionRepository.findAll();
+        if (sessionList.isEmpty()){
+            return new ViewResponse("01", "No sessions can be found") ;
+        }
+        return new ViewResponse("00" , "Successful", sessionList);
     }
 }
