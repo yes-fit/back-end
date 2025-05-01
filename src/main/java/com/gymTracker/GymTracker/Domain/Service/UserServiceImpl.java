@@ -1,16 +1,24 @@
 package com.gymTracker.GymTracker.Domain.Service;
 
+import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
 import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
+import com.gymTracker.GymTracker.App.Dto.Request.ViewRequest;
+import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
 import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
+import com.gymTracker.GymTracker.App.Dto.Response.ViewResponse;
 import com.gymTracker.GymTracker.Domain.Constants.Roles;
+import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
 import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
+import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,10 +27,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final SessionRepository sessionRepository;
     private final JwtUtils jwtUtils;
 
-    public UserServiceImpl(UserRepository userRepository, JwtUtils jwtUtils) {
+    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
         this.jwtUtils = jwtUtils;
     }
 
@@ -59,5 +69,36 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtils.generateTokenFromEmail(user.get().getEmail());
         //System.out.println(token +  " -----this is the generated token");
         return new LoginResponse("00", "Login Successful", token);
+    }
+
+    @Override
+    public SessionResponse bookSession(SessionRequest sessionRequest) {
+        Session session = new Session();
+        LocalDateTime startTime = sessionRequest.getStartTime();
+        LocalDateTime endTime = sessionRequest.getStartTime().plusHours(1);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (startTime.isBefore(now)) {
+            return new SessionResponse("01", "Cannot book a session in the past.");
+        }
+        if (startTime.isBefore(now.plusHours(24))) {
+            return new SessionResponse("02", "Session must be booked at least 24 hours earlier");
+        }
+        if (sessionRepository.findAllByStartTime(sessionRequest.getStartTime()).size() > 49){
+            return new SessionResponse("03" , "maximum capacity filled");
+        }
+        session.setStartTime(startTime);
+        session.setEndTime(endTime);
+        sessionRepository.save(session);
+        return new SessionResponse("00" , "Booking Successful");
+    }
+
+    @Override
+    public ViewResponse viewSession() {
+        List<Session> sessionList = sessionRepository.findAll();
+        if (sessionList.isEmpty()){
+            return new ViewResponse("01", "No sessions can be found") ;
+        }
+        return new ViewResponse("00" , "Successful", sessionList);
     }
 }
