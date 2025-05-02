@@ -1,13 +1,7 @@
 package com.gymTracker.GymTracker.App.Controller;
 
-import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.ViewRequest;
-import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.ViewResponse;
+import com.gymTracker.GymTracker.App.Dto.Request.*;
+import com.gymTracker.GymTracker.App.Dto.Response.*;
 import com.gymTracker.GymTracker.Domain.Service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +39,10 @@ public class AppController {
     @GetMapping("/view")
     public ViewResponse viewSession(){
         return userService.viewSession();
+    }
+
+    @PutMapping("/edit")
+    public EditResponse editSession(@RequestBody EditRequest editRequest){
+        return userService.editSession(editRequest);
     }
 }

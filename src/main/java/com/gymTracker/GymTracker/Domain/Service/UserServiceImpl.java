@@ -1,13 +1,7 @@
 package com.gymTracker.GymTracker.Domain.Service;
 
-import com.gymTracker.GymTracker.App.Dto.Request.SessionRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.LoginRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.RegisterRequest;
-import com.gymTracker.GymTracker.App.Dto.Request.ViewRequest;
-import com.gymTracker.GymTracker.App.Dto.Response.SessionResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.LoginResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.RegistrationResponse;
-import com.gymTracker.GymTracker.App.Dto.Response.ViewResponse;
+import com.gymTracker.GymTracker.App.Dto.Request.*;
+import com.gymTracker.GymTracker.App.Dto.Response.*;
 import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
@@ -20,6 +14,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static com.gymTracker.GymTracker.Infracstructure.Config.SecurityUtils.getCurrentUserEmail;
 
 @Service
 
@@ -100,5 +96,47 @@ public class UserServiceImpl implements UserService {
             return new ViewResponse("01", "No sessions can be found") ;
         }
         return new ViewResponse("00" , "Successful", sessionList);
+    }
+
+    @Override
+    public EditResponse editSession(EditRequest editRequest) {
+        String email = getCurrentUserEmail();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return new EditResponse("01", "User not found");
+        }
+
+        User user = optionalUser.get();
+        String userId = String.valueOf(user.getId());
+
+
+        Optional<Session> optionalSession = sessionRepository.findByUserId(userId);
+
+        if (optionalSession.isEmpty()) {
+            return new EditResponse("02", "No session found for user");
+        }
+
+        Session session = optionalSession.get();
+
+        LocalDateTime newTime = editRequest.getNewTime();
+        LocalDateTime endTime = editRequest.getNewTime().plusHours(1);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (newTime.isBefore(now)) {
+            return new EditResponse("01", "Cannot book a session in the past.");
+        }
+        if (newTime.isBefore(now.plusHours(24))) {
+            return new EditResponse("02", "Session must be booked at least 24 hours earlier");
+        }
+        if (sessionRepository.findAllByStartTime(editRequest.getNewTime()).size() > 49){
+            return new EditResponse("03" , "maximum capacity filled");
+        }
+        session.setStartTime(newTime);
+        session.setEndTime(endTime);
+
+        sessionRepository.save(session);
+
+        return new EditResponse("00" , "Session Updated successfully");
     }
 }
