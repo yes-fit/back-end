@@ -8,6 +8,7 @@ import com.gymTracker.GymTracker.Domain.Entity.User;
 import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
 import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -158,5 +159,27 @@ public class UserServiceImpl implements UserService {
         sessionRepository.save(session);
 
         return new EditResponse("00" , "Session Updated successfully");
+    }
+
+    @Override
+    @Transactional
+    public DeleteResponse deleteSession(DeleteRequest deleteRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return new DeleteResponse("01", "User not found");
+        }
+
+        User user = optionalUser.get();
+        Optional<Session> optionalSession = sessionRepository.findById(UUID.fromString(deleteRequest.getSessionId()));
+        if (optionalSession.isEmpty()) {
+            return new DeleteResponse("02", "No session found for user");
+        }
+
+        Session session= optionalSession.get();
+        sessionRepository.delete(session);
+
+        return new DeleteResponse("00" , "Session Deleted Successfully");
     }
 }

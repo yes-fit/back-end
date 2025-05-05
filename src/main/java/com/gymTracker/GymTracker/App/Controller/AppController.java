@@ -45,4 +45,8 @@ public class AppController {
     public EditResponse editSession(@RequestBody EditRequest editRequest){
         return userService.editSession(editRequest);
     }
+    @DeleteMapping("/delete")
+    public DeleteResponse deleteSession(@RequestBody DeleteRequest deleteRequest){
+        return userService.deleteSession(deleteRequest);
+    }
 }

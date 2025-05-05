@@ -15,5 +15,6 @@ public interface UserService {
     ViewResponse viewSession ();
     EditResponse editSession(EditRequest editRequest);
 
+    DeleteResponse deleteSession(DeleteRequest deleteRequest);
 
 }
