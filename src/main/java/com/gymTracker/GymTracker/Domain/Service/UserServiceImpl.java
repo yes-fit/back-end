@@ -8,6 +8,7 @@ import com.gymTracker.GymTracker.Domain.Entity.User;
 import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
 import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -83,6 +84,15 @@ public class UserServiceImpl implements UserService {
         if (sessionRepository.findAllByStartTime(sessionRequest.getStartTime()).size() > 49){
             return new SessionResponse("03" , "maximum capacity filled");
         }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return new SessionResponse("04", "User not found");
+        }
+
+        User user = optionalUser.get();
+        session.setUserId(String.valueOf(user.getId()));
         session.setStartTime(startTime);
         session.setEndTime(endTime);
         sessionRepository.save(session);
@@ -91,12 +101,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ViewResponse viewSession() {
-        List<Session> sessionList = sessionRepository.findAll();
-        if (sessionList.isEmpty()){
-            return new ViewResponse("01", "No sessions can be found") ;
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return new ViewResponse("01", "User not found");
         }
-        return new ViewResponse("00" , "Successful", sessionList);
+
+        User user = optionalUser.get();
+        Optional<List<Session>> sessionList  = sessionRepository.findByUserId(String.valueOf(user.getId()));
+
+        if (sessionList.isEmpty()) {
+            return new ViewResponse("01", "No sessions found for this user");
+        }
+
+        return new ViewResponse("00", "Successful", sessionList.get());
     }
+
 
     @Override
     public EditResponse editSession(EditRequest editRequest) {
@@ -111,13 +132,13 @@ public class UserServiceImpl implements UserService {
         String userId = String.valueOf(user.getId());
 
 
-        Optional<Session> optionalSession = sessionRepository.findByUserId(userId);
+        Optional<List<Session>> optionalSession = sessionRepository.findByUserId(userId);
 
         if (optionalSession.isEmpty()) {
             return new EditResponse("02", "No session found for user");
         }
 
-        Session session = optionalSession.get();
+        Session session = optionalSession.get().get(0);
 
         LocalDateTime newTime = editRequest.getNewTime();
         LocalDateTime endTime = editRequest.getNewTime().plusHours(1);

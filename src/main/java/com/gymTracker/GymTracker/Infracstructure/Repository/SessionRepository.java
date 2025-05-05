@@ -15,5 +15,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
 
     List<Session> findAllByStartTime(LocalDateTime startTime);
 
-    Optional<Session> findByUserId(String userId);
+    Optional<List<Session>> findByUserId(String userId);
+
 }

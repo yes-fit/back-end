@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 
 import java.util.List;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ViewResponse {
     private String responseCode;
     private String responseMessage;
+
+    public ViewResponse(String number, String successful, Optional<Session> sessionList) {
+    }
 
     public List<Session> getBookedSessions() {
         return bookedSessions;
