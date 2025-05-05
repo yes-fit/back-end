@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Long> {
@@ -16,5 +17,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     List<Session> findAllByStartTime(LocalDateTime startTime);
 
     Optional<List<Session>> findByUserId(String userId);
+    Optional<Session> findById(UUID sessionId);
 
 }

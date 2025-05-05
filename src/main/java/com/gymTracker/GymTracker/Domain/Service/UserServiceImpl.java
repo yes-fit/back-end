@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.gymTracker.GymTracker.Infracstructure.Config.SecurityUtils.getCurrentUserEmail;
 
@@ -121,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public EditResponse editSession(EditRequest editRequest) {
-        String email = getCurrentUserEmail();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalUser.isEmpty()) {
@@ -129,16 +130,14 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = optionalUser.get();
-        String userId = String.valueOf(user.getId());
 
-
-        Optional<List<Session>> optionalSession = sessionRepository.findByUserId(userId);
+        Optional<Session> optionalSession = sessionRepository.findById(UUID.fromString(editRequest.getSessionId()));
 
         if (optionalSession.isEmpty()) {
             return new EditResponse("02", "No session found for user");
         }
 
-        Session session = optionalSession.get().get(0);
+        Session session = optionalSession.get();
 
         LocalDateTime newTime = editRequest.getNewTime();
         LocalDateTime endTime = editRequest.getNewTime().plusHours(1);
