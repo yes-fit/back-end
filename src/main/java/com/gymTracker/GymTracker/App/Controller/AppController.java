@@ -49,4 +49,8 @@ public class AppController {
     public DeleteResponse deleteSession(@RequestBody DeleteRequest deleteRequest){
         return userService.deleteSession(deleteRequest);
     }
+    @GetMapping("/report")
+    public ReportResponse reportUsage(@RequestBody ReportRequest reportRequest){
+        return userService.findAllSessions(reportRequest);
+    }
 }

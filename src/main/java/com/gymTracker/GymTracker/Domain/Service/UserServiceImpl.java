@@ -6,32 +6,34 @@ import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
 import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
+import com.gymTracker.GymTracker.Infracstructure.Repository.ReportRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
-import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.gymTracker.GymTracker.Infracstructure.Config.SecurityUtils.getCurrentUserEmail;
-
 @Service
-
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     private final SessionRepository sessionRepository;
+
+    private final ReportRepository reportRepository;
     private final JwtUtils jwtUtils;
 
-    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, JwtUtils jwtUtils) {
+    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, ReportRepository reportRepository, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
+        this.reportRepository = reportRepository;
         this.jwtUtils = jwtUtils;
     }
 
@@ -162,9 +164,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public DeleteResponse deleteSession(DeleteRequest deleteRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("");
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalUser.isEmpty()) {
@@ -182,4 +184,26 @@ public class UserServiceImpl implements UserService {
 
         return new DeleteResponse("00" , "Session Deleted Successfully");
     }
+
+    @Override
+    public ReportResponse findAllSessions(ReportRequest reportRequest) {
+        LocalDateTime requestTime = reportRequest.getTime() != null
+                ? reportRequest.getTime()
+                : LocalDateTime.now();
+
+
+        int hour = requestTime.getHour();
+
+
+        LocalDateTime fromTime = LocalDate.now().atTime(hour, 0);
+
+        List<Session> sessions = sessionRepository.findAllByStartTimeGreaterThanEqual(fromTime);
+
+        if (sessions.isEmpty()) {
+            return new ReportResponse("00", "No sessions found");
+        }
+
+        return new ReportResponse("00", "Sessions Generated Successfully", sessions);
+    }
+
 }

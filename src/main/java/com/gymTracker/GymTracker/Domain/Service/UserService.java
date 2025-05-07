@@ -17,4 +17,5 @@ public interface UserService {
 
     DeleteResponse deleteSession(DeleteRequest deleteRequest);
 
+    ReportResponse findAllSessions (ReportRequest reportRequest);
 }
