@@ -18,4 +18,6 @@ public interface UserService {
     DeleteResponse deleteSession(DeleteRequest deleteRequest);
 
     ReportResponse findAllSessions (ReportRequest reportRequest);
+
+    AvailableResponse findAllSessionsByDate(AvailableRequest availableRequest);
 }

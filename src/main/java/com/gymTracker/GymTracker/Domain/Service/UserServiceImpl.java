@@ -11,10 +11,13 @@ import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,23 +33,28 @@ public class UserServiceImpl implements UserService {
     private final ReportRepository reportRepository;
     private final JwtUtils jwtUtils;
 
-    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, ReportRepository reportRepository, JwtUtils jwtUtils) {
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, ReportRepository reportRepository,
+                           JwtUtils jwtUtils, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.reportRepository = reportRepository;
         this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public RegistrationResponse registerUser(RegisterRequest registerRequest)
     {
+        log.info("Registration started for user {}", registerRequest.getEmail());
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             return new RegistrationResponse("01","User Already exists");
         }
         User user = new User();
         user.setUserName(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
-        user.setPassword(registerRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setFullName(registerRequest.getFullName());
         user.setRole(Roles.USER);
         user.setDob(registerRequest.getDob());
@@ -64,7 +72,7 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty()) {
             return new LoginResponse("01", "User does not exist");
         }
-        if (!user.get().getPassword().equalsIgnoreCase(loginRequest.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
             return new LoginResponse("02", "Bad credentials/ Invalid password");
         }
         String token = jwtUtils.generateTokenFromEmail(user.get().getEmail());
@@ -74,6 +82,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SessionResponse bookSession(SessionRequest sessionRequest) {
+        log.info("Attempting to book session at {}", sessionRequest.getStartTime());
         Session session = new Session();
         LocalDateTime startTime = sessionRequest.getStartTime();
         LocalDateTime endTime = sessionRequest.getStartTime().plusHours(1);
@@ -90,6 +99,7 @@ public class UserServiceImpl implements UserService {
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> optionalUser = userRepository.findByEmail(email);
+        log.info("User {}  is attempting to book session at {}", email, session.getStartTime());
 
         if (optionalUser.isEmpty()) {
             return new SessionResponse("04", "User not found");
@@ -100,6 +110,7 @@ public class UserServiceImpl implements UserService {
         session.setStartTime(startTime);
         session.setEndTime(endTime);
         sessionRepository.save(session);
+        log.info("Session assumed booked with details {}", session.toString());
         return new SessionResponse("00" , "Booking Successful");
     }
 
@@ -200,10 +211,45 @@ public class UserServiceImpl implements UserService {
         List<Session> sessions = sessionRepository.findAllByStartTimeGreaterThanEqual(fromTime);
 
         if (sessions.isEmpty()) {
-            return new ReportResponse("00", "No sessions found");
+            return new ReportResponse("01", "No sessions found");
         }
 
         return new ReportResponse("00", "Sessions Generated Successfully", sessions);
     }
 
+    @Override
+    public AvailableResponse findAllSessionsByDate(AvailableRequest availableRequest) {
+        LocalDate date = availableRequest.getDate();
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+        List<Session> sessions = sessionRepository.findAllByStartTimeBetween(startOfDay, endOfDay);
+
+        if (sessions.isEmpty()) {
+            return new AvailableResponse("01", "No available sessions");
+        }
+
+        List<HourAvailability> availabilityList = new ArrayList<>();
+
+        for (int hour = 0; hour < 24; hour++) {
+            final int currentHour = hour;
+
+            long sessionCount = sessions.stream()
+                    .filter(session -> session.getStartTime().getHour() == currentHour)
+                    .count();
+
+            boolean available = sessionCount < 50;
+
+            availabilityList.add(new HourAvailability(currentHour, available));
+        }
+
+        return new AvailableResponse("00", "Sessions Generated Successfully", availabilityList);
+    }
+
+
 }
+
+// for each hour of the day, loop through the sessions returned to check if the number of returned session is more than 49 -> capacity full.
+
+// map to object representing each hour with a field 'available' of typre boolean. if capacity is less than 50 make true otherwise make false.

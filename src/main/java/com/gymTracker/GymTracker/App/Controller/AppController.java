@@ -53,4 +53,8 @@ public class AppController {
     public ReportResponse reportUsage(@RequestBody ReportRequest reportRequest){
         return userService.findAllSessions(reportRequest);
     }
+    @PostMapping("available")
+    public AvailableResponse availableSession(@RequestBody AvailableRequest availableRequest){
+        return userService.findAllSessionsByDate(availableRequest);
+    }
 }
