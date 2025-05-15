@@ -2,6 +2,7 @@ package com.gymTracker.GymTracker.Domain.Service;
 
 import com.gymTracker.GymTracker.App.Dto.Request.*;
 import com.gymTracker.GymTracker.App.Dto.Response.*;
+import com.gymTracker.GymTracker.Domain.Constants.MailType;
 import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
@@ -9,10 +10,10 @@ import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
 import com.gymTracker.GymTracker.Infracstructure.Repository.ReportRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
+import com.gymTracker.GymTracker.Infracstructure.Utils.SendMails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,14 +34,17 @@ public class UserServiceImpl implements UserService {
     private final ReportRepository reportRepository;
     private final JwtUtils jwtUtils;
 
+    private final SendMails sendMails;
+
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, ReportRepository reportRepository,
-                           JwtUtils jwtUtils, BCryptPasswordEncoder passwordEncoder) {
+                           JwtUtils jwtUtils, SendMails sendMails, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.reportRepository = reportRepository;
         this.jwtUtils = jwtUtils;
+        this.sendMails = sendMails;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -61,6 +65,7 @@ public class UserServiceImpl implements UserService {
         user.setGender(registerRequest.getGender());
 
         userRepository.save(user);
+        sendMails.sendEmail(MailType.SESSION_REGISTRATION, registerRequest.getEmail());
         return new RegistrationResponse("00","Registration successful");
     }
 
@@ -111,6 +116,7 @@ public class UserServiceImpl implements UserService {
         session.setEndTime(endTime);
         sessionRepository.save(session);
         log.info("Session assumed booked with details {}", session.toString());
+        sendMails.sendEmail(MailType.SESSION_BOOKING, user.getEmail());
         return new SessionResponse("00" , "Booking Successful");
     }
 
@@ -170,7 +176,7 @@ public class UserServiceImpl implements UserService {
         session.setEndTime(endTime);
 
         sessionRepository.save(session);
-
+        sendMails.sendEmail(MailType.SESSION_EDITED, user.getEmail());
         return new EditResponse("00" , "Session Updated successfully");
     }
 
@@ -193,6 +199,7 @@ public class UserServiceImpl implements UserService {
         Session session= optionalSession.get();
         sessionRepository.delete(session);
 
+        sendMails.sendEmail(MailType.SESSION_DELETION, user.getEmail());
         return new DeleteResponse("00" , "Session Deleted Successfully");
     }
 
