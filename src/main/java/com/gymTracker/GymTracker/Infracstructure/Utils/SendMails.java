@@ -2,11 +2,13 @@ package com.gymTracker.GymTracker.Infracstructure.Utils;
 
 import com.gymTracker.GymTracker.Domain.Constants.MailType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-@Component
+
+@Configuration
 public class SendMails {
 
     @Value("${mail.sender}")
