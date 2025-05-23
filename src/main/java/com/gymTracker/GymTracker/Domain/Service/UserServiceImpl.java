@@ -233,9 +233,6 @@ public class UserServiceImpl implements UserService {
 
         List<Session> sessions = sessionRepository.findAllByStartTimeBetween(startOfDay, endOfDay);
 
-//        if (sessions.isEmpty()) {
-//            return new AvailableResponse("01", "No available sessions");
-//        }
 
         List<HourAvailability> availabilityList = new ArrayList<>();
 

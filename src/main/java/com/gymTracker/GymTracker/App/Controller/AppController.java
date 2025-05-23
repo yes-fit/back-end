@@ -3,11 +3,18 @@ package com.gymTracker.GymTracker.App.Controller;
 import com.gymTracker.GymTracker.App.Dto.Request.*;
 import com.gymTracker.GymTracker.App.Dto.Response.*;
 import com.gymTracker.GymTracker.Domain.Service.UserService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.XSlf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
+@EnableMethodSecurity
 public class AppController {
 
     private final UserService userService;
@@ -17,8 +24,7 @@ public class AppController {
     }
 
     @PostMapping("/register")
-
-    public RegistrationResponse register(@RequestBody RegisterRequest registerRequest){
+    public RegistrationResponse register(@RequestBody @Valid RegisterRequest registerRequest){
         return userService.registerUser(registerRequest);
     }
 
@@ -33,27 +39,35 @@ public class AppController {
     }
 
     @PostMapping("/bookSession")
-    public SessionResponse bookSession(@RequestBody SessionRequest sessionRequest){
+    @PreAuthorize("hasRole('USER')")
+    public SessionResponse bookSession(@RequestBody SessionRequest sessionRequest, SecurityContext authenticationPrincipal){
+        System.out.println("attempting to book session");
+        System.out.println("User details ::: " + authenticationPrincipal.getAuthentication().getAuthorities().toString());
         return userService.bookSession(sessionRequest);
     }
     @GetMapping("/view")
+    @PreAuthorize("hasRole('USER')")
     public ViewResponse viewSession(){
         return userService.viewSession();
     }
 
     @PutMapping("/edit")
+    @PreAuthorize("hasRole('USER')")
     public EditResponse editSession(@RequestBody EditRequest editRequest){
         return userService.editSession(editRequest);
     }
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('USER')")
     public DeleteResponse deleteSession(@RequestBody DeleteRequest deleteRequest){
         return userService.deleteSession(deleteRequest);
     }
     @GetMapping("/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ReportResponse reportUsage(@RequestBody ReportRequest reportRequest){
         return userService.findAllSessions(reportRequest);
     }
     @PostMapping("available")
+    @PreAuthorize("hasRole('USER')")
     public AvailableResponse availableSession(@RequestBody AvailableRequest availableRequest){
         return userService.findAllSessionsByDate(availableRequest);
     }
