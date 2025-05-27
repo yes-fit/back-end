@@ -35,25 +35,26 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         logger.debug("AuthTokenFilter called for URI: {}", request.getRequestURI());
         try {
             String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            logger.info("Parsed JWT ::: {}", jwt);
+            boolean isValidJwt = jwtUtils.validateJwtToken(jwt);
+            logger.info("Is  JWT valid? [{}]", isValidJwt);
+            if (jwt != null && isValidJwt) {
+                logger.info("Validated Jwt Successfully.");
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
+                logger.info("Current logged in user [{}]", username);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails,
                                 null,
                                 userDetails.getAuthorities());
-                logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
-
+                logger.info("Roles from JWT: {}", userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
+                logger.info("Setting Security context of user [{}]", username);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
         }
-
         filterChain.doFilter(request, response);
     }
 

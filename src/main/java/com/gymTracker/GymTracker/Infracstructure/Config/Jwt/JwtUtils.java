@@ -57,7 +57,7 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            System.out.println("Validate");
+            logger.info("Validate");
             Jwts.parser().verifyWith((SecretKey)this.key()).build().parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException var3) {
@@ -69,7 +69,7 @@ public class JwtUtils {
         } catch (IllegalArgumentException var6) {
             logger.error("JWT claims string is empty: {}", var6.getMessage());
         }
-
+        logger.error("Validation failed");
         return false;
     }
 }

@@ -23,4 +23,9 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     List<Session> findAllByStartTimeGreaterThanEqual(LocalDateTime startTime);
     List<Session> findAllByStartTimeBetween(LocalDateTime startTime , LocalDateTime endTime);
 
+    Optional<Session> findTopByUserIdOrderByStartTimeDesc(String userId);
+
+    int countByUserIdAndStartTimeBetween(String userId, LocalDateTime start, LocalDateTime end);
+
+
 }

@@ -9,6 +9,10 @@ public class RegisterRequest {
     private String username;
     @Email(message = "Enter a valid mail address")
     @NotBlank(message = "Email is required")
+    @Pattern(
+            regexp = "^[A-Za-z0-9]+@[A-Za-z]+\\.[A-Za-z]+$",
+            message = "Email must valid"
+    )
     private String email;
     @NotBlank(message = "Enter your password")
     @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
@@ -20,7 +24,7 @@ public class RegisterRequest {
     @Pattern(regexp = "^(Male|Female|Other)$", message = "Gender must be Male, Female, or Other")
     @NotBlank(message = "Select your gender")
     private String gender;
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Date of Birth must be in yyyy-MM-dd format")
+    @Pattern(regexp = "^\\d{2}-\\d{2}-\\d{4}$", message = "Date of Birth must be in yyyy-MM-dd format")
     @NotBlank(message = "Enter your Date of Birth")
     private  String dob;
 

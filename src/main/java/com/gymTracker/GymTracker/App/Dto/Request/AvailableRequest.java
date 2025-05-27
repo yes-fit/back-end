@@ -1,8 +1,14 @@
 package com.gymTracker.GymTracker.App.Dto.Request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public class AvailableRequest {
+    @NotNull(message = "Date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
     public AvailableRequest(LocalDate date) {

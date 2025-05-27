@@ -29,7 +29,7 @@ public class AppController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest loginRequest){
+    public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest){
         return userService.loginUser(loginRequest);
     }
 
@@ -39,36 +39,36 @@ public class AppController {
     }
 
     @PostMapping("/bookSession")
-    @PreAuthorize("hasRole('USER')")
-    public SessionResponse bookSession(@RequestBody SessionRequest sessionRequest, SecurityContext authenticationPrincipal){
+    @PreAuthorize("hasAuthority('USER')")
+    public SessionResponse bookSession(@RequestBody @Valid SessionRequest sessionRequest){
         System.out.println("attempting to book session");
-        System.out.println("User details ::: " + authenticationPrincipal.getAuthentication().getAuthorities().toString());
+        //System.out.println("User details ::: " + authenticationPrincipal.getAuthentication().getAuthorities().toString());
         return userService.bookSession(sessionRequest);
     }
     @GetMapping("/view")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public ViewResponse viewSession(){
         return userService.viewSession();
     }
 
     @PutMapping("/edit")
-    @PreAuthorize("hasRole('USER')")
-    public EditResponse editSession(@RequestBody EditRequest editRequest){
+    @PreAuthorize("hasAuthority('USER')")
+    public EditResponse editSession(@RequestBody @Valid EditRequest editRequest){
         return userService.editSession(editRequest);
     }
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('USER')")
-    public DeleteResponse deleteSession(@RequestBody DeleteRequest deleteRequest){
+    @PreAuthorize("hasAuthority('USER')")
+    public DeleteResponse deleteSession(@RequestBody @Valid DeleteRequest deleteRequest){
         return userService.deleteSession(deleteRequest);
     }
     @GetMapping("/report")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ReportResponse reportUsage(@RequestBody ReportRequest reportRequest){
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ReportResponse reportUsage(@RequestBody @Valid ReportRequest reportRequest){
         return userService.findAllSessions(reportRequest);
     }
     @PostMapping("available")
-    @PreAuthorize("hasRole('USER')")
-    public AvailableResponse availableSession(@RequestBody AvailableRequest availableRequest){
+    @PreAuthorize("hasAuthority('USER')")
+    public AvailableResponse availableSession(@RequestBody @Valid AvailableRequest availableRequest){
         return userService.findAllSessionsByDate(availableRequest);
     }
 }

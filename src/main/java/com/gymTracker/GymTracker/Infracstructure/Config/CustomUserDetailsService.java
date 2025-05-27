@@ -27,6 +27,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         Optional<com.gymTracker.GymTracker.Domain.Entity.User> gymUser = userRepository.findByEmail(email);
         return new User(email, gymUser.get().getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority(gymUser.get().getRole().name())));
+                Collections.singleton(new SimpleGrantedAuthority( gymUser.get().getRole().name())));
     }
 }

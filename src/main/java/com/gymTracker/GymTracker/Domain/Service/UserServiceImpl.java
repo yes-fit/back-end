@@ -109,14 +109,43 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isEmpty()) {
             return new SessionResponse("04", "User not found");
         }
-
         User user = optionalUser.get();
+        Optional<Session> lastBookedSession = sessionRepository.findTopByUserIdOrderByStartTimeDesc(user.getId().toString());
+
+
+        if (lastBookedSession.isPresent()) {
+            Session lastSession = lastBookedSession.get();
+            log.info("Last booked session for {} was at {}", email, lastSession.getStartTime());
+            int lastHour  = lastSession.getStartTime().getHour();
+            int requestedHour = sessionRequest.getStartTime().getHour();
+            if (lastHour - 1 == requestedHour && sessionRequest.getStartTime().toLocalDate().equals(lastSession.getStartTime().toLocalDate())) {
+                return new SessionResponse("07", "Cannot book a session before your last booked session on the same day.");
+            }
+            if (requestedHour - 1 == lastHour  && sessionRequest.getStartTime().toLocalDate().equals(lastSession.getStartTime().toLocalDate())) {
+                return new SessionResponse("05" , "Concurrent Sessions cannot be booked.");
+            }
+        }
+
+      //  log.info("No immediate previous session found for {}", email);
+
+
+        int sessionsBookedToday = sessionRepository.countByUserIdAndStartTimeBetween(
+                user.getId().toString(),
+                startTime.toLocalDate().atStartOfDay(),
+                startTime.toLocalDate().atTime(23, 59, 59)
+        );
+
+        if (sessionsBookedToday >= 2) {
+            return new SessionResponse("06", "Maximum of 2 sessions per day exceeded.");
+        }
+
         session.setUserId(String.valueOf(user.getId()));
         session.setStartTime(startTime);
         session.setEndTime(endTime);
         sessionRepository.save(session);
         log.info("Session assumed booked with details {}", session.toString());
         sendMails.sendEmail(MailType.SESSION_BOOKING, user.getEmail());
+
         return new SessionResponse("00" , "Booking Successful");
     }
 
