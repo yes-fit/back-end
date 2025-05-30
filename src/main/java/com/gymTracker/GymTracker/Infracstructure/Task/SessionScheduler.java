@@ -15,7 +15,7 @@ public class SessionScheduler {
     @Autowired
     private SessionRepository sessionRepository;
 
-     @Scheduled(cron = "0 0 * * * *") // Runs at minute 0, second 0 of every hour
+     @Scheduled(cron = "0 0 * * * *")
 
     public List<Session> activateUpcomingSessions() {
         LocalDateTime currentTime = LocalDateTime.now();

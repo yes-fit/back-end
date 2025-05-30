@@ -26,6 +26,5 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findTopByUserIdOrderByStartTimeDesc(String userId);
 
     int countByUserIdAndStartTimeBetween(String userId, LocalDateTime start, LocalDateTime end);
-
-
+    Optional<Session> findTopByUserIdAndStartTimeBetweenAndActiveIsTrue(String userId, LocalDateTime startOfHour, LocalDateTime endOfHour);
 }

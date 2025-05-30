@@ -281,8 +281,43 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    public UtilizeResponse utilizeSession() {
+        String email  = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Utilizing session for user: {}", email);
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    String userId = String.valueOf(user.getId());
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime startOfHour = now.withMinute(0).withSecond(0).withNano(0);
+                    LocalDateTime endOfHour = now.withMinute(59).withSecond(59).withNano(999999999);
+
+
+                    Optional<Session> sessionOpt = sessionRepository
+                            .findTopByUserIdAndStartTimeBetweenAndActiveIsTrue(userId, startOfHour, endOfHour);
+
+                    if (sessionOpt.isPresent()) {
+                        Session session = sessionOpt.get();
+                        if (!session.isUtilize()) {
+                            session.setUtilize(true);
+                            sessionRepository.save(session);
+                            log.info("Session utilized for user: {}", email);
+                            return new UtilizeResponse("00", "Session utilized successfully.");
+                        } else {
+                            log.warn("Session already utilized for user: {}", email);
+                            return new UtilizeResponse("01", "Session already utilized.");
+                        }
+                    } else {
+                        log.warn("No active session found for user: {}", email);
+                        return new UtilizeResponse("02", "No active session found at this time.");
+                    }
+
+                })
+                .orElseGet(() -> {
+                    log.warn("User not found for email: {}", email);
+                    return new UtilizeResponse("03", "User not found.");
+                });
+    }
+
+
 }
 
-// for each hour of the day, loop through the sessions returned to check if the number of returned session is more than 49 -> capacity full.
-
-// map to object representing each hour with a field 'available' of typre boolean. if capacity is less than 50 make true otherwise make false.
