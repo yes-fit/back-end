@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 @Configuration
@@ -19,12 +22,13 @@ public class SendMails {
     private String mailFrom;
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
-    public SendMails(JavaMailSender mailSender) {
+    public SendMails(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
     }
-
-    public String sendEmail(MailType type, String recipientEmail){
+    public String sendEmail(MailType type, String recipientEmail, Map<String, Object> variables) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -32,43 +36,86 @@ public class SendMails {
             helper.setFrom(mailFrom);
             helper.setTo(recipientEmail);
             helper.setSubject(type.getSubject());
-            if (type.equals(MailType.SESSION_REGISTRATION)) {
-                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/Registration.html"))) {
-                    helper.setText(
-                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
-                    );
-                }
-            }
-            if (type.equals(MailType.SESSION_BOOKING)) {
-                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/Booking.html"))) {
-                    helper.setText(
-                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
-                    );
-                }
-            }
-            if (type.equals(MailType.SESSION_EDITED)) {
-                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/SessionEdit.html"))) {
-                    helper.setText(
-                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
-                    );
-                }
-            }
-            if (type.equals(MailType.SESSION_DELETION)) {
-                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/SessionDelete.html"))) {
-                    helper.setText(
-                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
-                    );
-                }
-            }
+
+            // Select the template name based on mail type
+            String templateName = getTemplateNameForType(type);
+
+            // Set template context variables
+            Context context = new Context();
+            context.setVariables(variables);
+
+            // Process the template with the variables
+            String htmlContent = templateEngine.process(templateName, context);
+            helper.setText(htmlContent, true);
 
             helper.addInline("union.png", new File("C:\\Users\\AbdulBasit\\Pictures\\union.png"));
 
             mailSender.send(message);
             return "Success";
+
         } catch (Exception e) {
             return e.getMessage();
         }
     }
+    private String getTemplateNameForType(MailType type) {
+        return switch (type) {
+            case SESSION_REGISTRATION -> "Registration";
+            case SESSION_BOOKING -> "Booking";
+            case SESSION_EDITED -> "SessionEdit";
+            case SESSION_DELETION -> "SessionDelete";
+            default -> "DefaultTemplate";
+        };
+    }
+
+
+
+//    public String sendEmail(MailType type, String recipientEmail, Map<String, Object> variables){
+//        try {
+//            MimeMessage message = mailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//
+//            helper.setFrom(mailFrom);
+//            helper.setTo(recipientEmail);
+//            helper.setSubject(type.getSubject());
+//
+//
+//            if (type.equals(MailType.SESSION_REGISTRATION)) {
+//                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/Registration.html"))) {
+//                    helper.setText(
+//                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
+//                    );
+//                }
+//            }
+//            if (type.equals(MailType.SESSION_BOOKING)) {
+//                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/Booking.html"))) {
+//                    helper.setText(
+//                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
+//                    );
+//                }
+//            }
+//            if (type.equals(MailType.SESSION_EDITED)) {
+//                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/SessionEdit.html"))) {
+//                    helper.setText(
+//                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
+//                    );
+//                }
+//            }
+//            if (type.equals(MailType.SESSION_DELETION)) {
+//                try (var inputStream = Objects.requireNonNull(AppController.class.getResourceAsStream("/templates/SessionDelete.html"))) {
+//                    helper.setText(
+//                            new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), true
+//                    );
+//                }
+//            }
+//
+//            helper.addInline("union.png", new File("C:\\Users\\AbdulBasit\\Pictures\\union.png"));
+//
+//            mailSender.send(message);
+//            return "Success";
+//        } catch (Exception e) {
+//            return e.getMessage();
+//        }
+//    }
 }
 
 /* -------- former way of getting email type (Just plain text)

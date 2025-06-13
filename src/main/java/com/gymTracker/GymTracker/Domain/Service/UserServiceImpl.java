@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -65,7 +62,10 @@ public class UserServiceImpl implements UserService {
         user.setGender(registerRequest.getGender());
 
         userRepository.save(user);
-        sendMails.sendEmail(MailType.SESSION_REGISTRATION, registerRequest.getEmail());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("userName", user.getFullName());
+        variables.put("gymLocation", "Union Fitness Center");
+        sendMails.sendEmail(MailType.SESSION_REGISTRATION, registerRequest.getEmail(), variables);
         return new RegistrationResponse("00","Registration successful");
     }
 
@@ -144,7 +144,16 @@ public class UserServiceImpl implements UserService {
         session.setEndTime(endTime);
         sessionRepository.save(session);
         log.info("Session assumed booked with details {}", session.toString());
-        sendMails.sendEmail(MailType.SESSION_BOOKING, user.getEmail());
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("userName", user.getFullName());
+        variables.put("sessionDate", startTime.toLocalDate().toString());
+        variables.put("sessionTime", startTime.toLocalTime().toString());
+        variables.put("gymLocation", "Union Fitness Center");
+
+
+        sendMails.sendEmail(MailType.SESSION_BOOKING, user.getEmail(), variables);
+
 
         return new SessionResponse("00" , "Booking Successful");
     }
@@ -205,7 +214,12 @@ public class UserServiceImpl implements UserService {
         session.setEndTime(endTime);
 
         sessionRepository.save(session);
-        sendMails.sendEmail(MailType.SESSION_EDITED, user.getEmail());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("userName", user.getFullName());
+        variables.put("sessionDate", newTime.toLocalDate().toString());
+        variables.put("sessionTime", endTime.toLocalTime().toString());
+        variables.put("gymLocation", "Union Fitness Center");
+        sendMails.sendEmail(MailType.SESSION_EDITED, user.getEmail(), variables);
         return new EditResponse("00" , "Session Updated successfully");
     }
 
@@ -228,7 +242,10 @@ public class UserServiceImpl implements UserService {
         Session session= optionalSession.get();
         sessionRepository.delete(session);
 
-        sendMails.sendEmail(MailType.SESSION_DELETION, user.getEmail());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("userName", user.getFullName());
+        variables.put("gymLocation", "Union Fitness Center");
+        sendMails.sendEmail(MailType.SESSION_DELETION, user.getEmail(), variables);
         return new DeleteResponse("00" , "Session Deleted Successfully");
     }
 

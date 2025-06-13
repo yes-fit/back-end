@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <title>Session Cancelled</title>
@@ -22,13 +22,8 @@
     </div>
     <div class="content">
         <h1>Session Booking Cancelled</h1>
-        <p>Dear [User's Name],</p>
-        <p>Your booked session for the following date and time has been successfully cancelled:</p>
-        <ul>
-            <li><strong>Date:</strong> [Session Date]</li>
-            <li><strong>Time:</strong> [Session Time]</li>
-            <li><strong>Location:</strong> [Gym Location]</li>
-        </ul>
+        <p>Welcome <span th:text="${userName}">User</span>,</p>
+        <p>Your booked session has been successfully cancelled :( WE DO NOT LOOK FORWARD TO SEEING YOU NEXT TIME :(</p>
         <p>If this was not intended, please rebook your session.</p>
         <a href="[Book Again Link]" class="button">Book Another Session</a>
     </div>

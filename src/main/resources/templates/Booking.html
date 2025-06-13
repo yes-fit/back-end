@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <title>Session Booking Confirmation</title>
@@ -53,21 +53,19 @@
 <body>
 <div class="container">
     <div class="header">
-        <!-- Replace 'logo.png' with your gym's logo -->
         <img src="cid:union.png" alt="Gym Logo" />
         <h2>GymTracker</h2>
     </div>
     <div class="content">
         <h1>Session Booking Confirmed!</h1>
-        <p>Dear [User's Name],</p>
+        <p>Dear <span th:text="${userName}">User</span>,</p>
         <p>Thank you for booking your session with GymTracker. Here are your session details:</p>
         <ul>
-            <li><strong>Date:</strong> [Session Date]</li>
-            <li><strong>Time:</strong> [Session Time]</li>
-            <li><strong>Location:</strong> [Gym Location]</li>
+            <li><strong>Date:</strong> <span th:text="${sessionDate}">2025-06-01</span></li>
+            <li><strong>Time:</strong> <span th:text="${sessionTime}">12:00</span></li>
+            <li><strong>Location:</strong> <span th:text="${gymLocation}">Union Fitness</span></li>
         </ul>
         <p>Please arrive 10 minutes early and bring your membership card.</p>
-        <a href="[Manage Booking Link]" class="button">Manage Your Booking</a>
     </div>
     <div class="footer">
         &copy; 2025 GymTracker. All rights reserved.
