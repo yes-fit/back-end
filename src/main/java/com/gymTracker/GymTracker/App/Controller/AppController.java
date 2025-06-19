@@ -110,5 +110,11 @@ public class AppController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("workout")
+    @PreAuthorize("hasAuthority('USER')")
+    public WorkoutResponse createWorkout(@RequestBody @Valid WorkoutRequest workoutRequest){
+        return userService.createWorkout(workoutRequest);
+    }
+
 
 }

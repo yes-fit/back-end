@@ -6,10 +6,12 @@ import com.gymTracker.GymTracker.Domain.Constants.MailType;
 import com.gymTracker.GymTracker.Domain.Constants.Roles;
 import com.gymTracker.GymTracker.Domain.Entity.Session;
 import com.gymTracker.GymTracker.Domain.Entity.User;
+import com.gymTracker.GymTracker.Domain.Entity.Workout;
 import com.gymTracker.GymTracker.Infracstructure.Config.Jwt.JwtUtils;
 import com.gymTracker.GymTracker.Infracstructure.Repository.ReportRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.SessionRepository;
 import com.gymTracker.GymTracker.Infracstructure.Repository.UserRepository;
+import com.gymTracker.GymTracker.Infracstructure.Repository.WorkoutRepository;
 import com.gymTracker.GymTracker.Infracstructure.Utils.SendMails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,17 +31,20 @@ public class UserServiceImpl implements UserService {
     private final SessionRepository sessionRepository;
 
     private final ReportRepository reportRepository;
+    private final WorkoutRepository workoutRepository;
     private final JwtUtils jwtUtils;
 
     private final SendMails sendMails;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository, ReportRepository reportRepository,
-                           JwtUtils jwtUtils, SendMails sendMails, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, SessionRepository sessionRepository,
+                           ReportRepository reportRepository, WorkoutRepository workoutRepository, JwtUtils jwtUtils,
+                           SendMails sendMails, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
         this.reportRepository = reportRepository;
+        this.workoutRepository = workoutRepository;
         this.jwtUtils = jwtUtils;
         this.sendMails = sendMails;
         this.passwordEncoder = passwordEncoder;
@@ -65,6 +70,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("userName", user.getFullName());
         variables.put("gymLocation", "Union Fitness Center");
+        log.info("Sending a workout email to the user ");
         sendMails.sendEmail(MailType.SESSION_REGISTRATION, registerRequest.getEmail(), variables);
         return new RegistrationResponse("00","Registration successful");
     }
@@ -90,7 +96,7 @@ public class UserServiceImpl implements UserService {
         log.info("Attempting to book session at {}", sessionRequest.getStartTime());
         Session session = new Session();
         LocalDateTime startTime = sessionRequest.getStartTime();
-        LocalDateTime endTime = sessionRequest.getStartTime().plusHours(1);
+       // LocalDateTime endTime = sessionRequest.getStartTime().plusHours(1);
         LocalDateTime now = LocalDateTime.now();
 
         if (startTime.isBefore(now)) {
@@ -141,7 +147,7 @@ public class UserServiceImpl implements UserService {
 
         session.setUserId(String.valueOf(user.getId()));
         session.setStartTime(startTime);
-        session.setEndTime(endTime);
+     //   session.setEndTime(endTime);
         sessionRepository.save(session);
         log.info("Session assumed booked with details {}", session.toString());
 
@@ -333,6 +339,32 @@ public class UserServiceImpl implements UserService {
                     log.warn("User not found for email: {}", email);
                     return new UtilizeResponse("03", "User not found.");
                 });
+    }
+
+    @Override
+    public WorkoutResponse createWorkout(WorkoutRequest workoutRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("");
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return new WorkoutResponse("01", "User not found");
+        }
+        User user = optionalUser.get();
+        log.info("Attempting to create a workout");
+        Workout workout = new Workout();
+        workout.setExerciseName(workoutRequest.getExerciseName());
+        workout.setTargetReps(workoutRequest.getTargetReps());
+        workout.setSets(workoutRequest.getSets());
+        workout.setWorkoutDate(workoutRequest.getWorkoutDate());
+        log.info("Attempting to save to the repository");
+        workoutRepository.save(workout);
+        log.info("Attempt successfully");
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("userName", user.getFullName());
+        variables.put("gymLocation", "Union Fitness Center");
+        sendMails.sendEmail(MailType.WORKOUT ,user.getEmail() , variables);
+        return new WorkoutResponse("00" , "Workout created Successfully");
     }
 
 

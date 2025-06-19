@@ -25,5 +25,7 @@ public interface UserService {
 
     UtilizeResponse utilizeSession();
 
+    WorkoutResponse createWorkout (WorkoutRequest workoutRequest);
+
     //UtilizeResponse utilizeSession(UUID sessionId);
 }

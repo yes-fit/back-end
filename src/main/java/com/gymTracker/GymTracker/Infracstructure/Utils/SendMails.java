@@ -63,6 +63,7 @@ public class SendMails {
             case SESSION_BOOKING -> "Booking";
             case SESSION_EDITED -> "SessionEdit";
             case SESSION_DELETION -> "SessionDelete";
+            case WORKOUT -> "Workout";
             default -> "DefaultTemplate";
         };
     }

@@ -1,33 +1,32 @@
-package com.gymTracker.GymTracker.Domain.Entity;
+package com.gymTracker.GymTracker.App.Dto.Request;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-@Data
-@Entity
-@ToString
-@Table(name = "GYM_WORKOUT")
-public class Workout {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class WorkoutRequest {
+
+    @NotBlank(message = "Exercise name cannot be blank")
+    @Size(min = 2, message = "Exercise name must be at least 2 characters long")
     private String exerciseName;
+
+    @Positive(message = "Target reps must be greater than 0")
     private int targetReps;
+
+    @Positive(message = "Sets must be greater than 0")
     private int sets;
+
+    @NotNull(message = "Workout date is required")
+    @FutureOrPresent(message = "Workout date cannot be in the past")
     private LocalDate workoutDate;
 
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
+    public WorkoutRequest(String exerciseName, int targetReps, int sets, LocalDate workoutDate) {
+        this.exerciseName = exerciseName;
+        this.targetReps = targetReps;
+        this.sets = sets;
+        this.workoutDate = workoutDate;
     }
 
     public String getExerciseName() {
@@ -62,15 +61,4 @@ public class Workout {
         this.workoutDate = workoutDate;
     }
 
-
-    @Override
-    public String toString() {
-        return "Workout{" +
-                "id=" + id +
-                ", exerciseName='" + exerciseName + '\'' +
-                ", targetReps=" + targetReps +
-                ", sets=" + sets +
-                ", workoutDate=" + workoutDate +
-                '}';
-    }
 }
